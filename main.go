@@ -1,14 +1,22 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/Yendelevium/RSSAggregator/internal/database"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+
+	_ "github.com/lib/pq"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	// By default, this loads the .env file, but we can also specify
@@ -27,6 +35,20 @@ func main() {
 		// But with the package, no need to manually set the env varian
 		log.Fatal("Error: PORT not found in the environment")
 	}
+
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("Error: DB_URL not found in the environment")
+	}
+	conn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("Can't connect to database:", err)
+	}
+
+	apiCfg := apiConfig{
+		DB: database.New(conn),
+	}
+
 	// This creates a new router object
 	router := chi.NewRouter()
 
@@ -52,6 +74,7 @@ func main() {
 
 	// Creating am error endpoint so the ppl using the api know what an error will look like
 	v1Router.Get("/err", handlerErr)
+	v1Router.Post("/users", apiCfg.handlerCreateUser)
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router
 	// We r nesting a v1 r path will be localhost:8080/v1/healthz
@@ -73,7 +96,7 @@ func main() {
 	log.Printf("Server starting on port %v", portString)
 	// ListenAndServe() blocks. It's now listening to http requests on the server
 	// If anything goes wrong, it returns an error, and we will log that error and exit that program
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}

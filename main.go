@@ -11,9 +11,15 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 
+	// This is kindof a weird way abt how go handles databases
+	// We have to import a database drive in our program, but we don't have to call
+	// anything from it. It's written in the sqlc docs. So yeah just, go get, go tidy and go vendor this url below
+	// adding the _ as the alias name to indicate we won't be using it
 	_ "github.com/lib/pq"
 )
 
+// This struct holds a connectionn to a database
+// The database.Queries type was actually created by sqlc in the database folder
 type apiConfig struct {
 	DB *database.Queries
 }
@@ -36,16 +42,27 @@ func main() {
 		log.Fatal("Error: PORT not found in the environment")
 	}
 
+	// We are importing our db connection
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
 		log.Fatal("Error: DB_URL not found in the environment")
 	}
+
+	// The go standard library has a build in sql package
+	// We connect to the database using sql.Open("driver name", connectionstring)
+	// This returns a new connection and an error
 	conn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("Can't connect to database:", err)
 	}
 
+	// Lets create an apiConfig that we can pass into our handlers so that they have access to our database
 	apiCfg := apiConfig{
+		// This database.New() function is also made by sqlc
+		// Just pass the connection to this function aand u get
+		// a pointer to the database.Queries type. See the sqlc files to get more understanding
+		// The DB is a database.Queries, but our connection is an sql.DB, so we r gonna convert it
+		// to a database.Queries using the database.New() function
 		DB: database.New(conn),
 	}
 
@@ -74,6 +91,8 @@ func main() {
 
 	// Creating am error endpoint so the ppl using the api know what an error will look like
 	v1Router.Get("/err", handlerErr)
+
+	// This is a POST request to /users, and we r calling the handlerCreateUse METHOD on apiCfg
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router

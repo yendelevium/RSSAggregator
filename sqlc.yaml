@@ -1,3 +1,10 @@
+# copy-paste from docs - https://docs.sqlc.dev/en/latest/tutorials/getting-started-postgresql.html
+# the sqlc.yaml file must be in the root directory
+# It tells sqlc what version we r using, what db engine we r using, and where we r gonna store out queries
+# schema is where our shcema will be stored
+# queries is for queries
+# engine is postgres
+
 version: "2"
 sql:
   - schema : "sql/schema"
@@ -5,4 +12,7 @@ sql:
     engine: "postgresql"
     gen:
       go:
+        # out is where we wanna store the generated code sqlc gives us
+        # Our package is main by deafult so no need to put in, and idk why we didn't put the sql_package parameter
+        # The reason we didnt put the sql_package as we r using the built in sql pkg of the standard library
         out: "internal/database"

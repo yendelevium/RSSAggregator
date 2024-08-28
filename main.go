@@ -94,6 +94,10 @@ func main() {
 
 	// This is a POST request to /users, and we r calling the handlerCreateUse METHOD on apiCfg
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
+	v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerGetUser))
+
+	v1Router.Post("/feeds", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
+	v1Router.Get("/feeds", apiCfg.handlerGetFeeds)
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router
 	// We r nesting a v1 r path will be localhost:8080/v1/healthz

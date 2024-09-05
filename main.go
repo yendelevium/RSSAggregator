@@ -94,9 +94,20 @@ func main() {
 
 	// This is a POST request to /users, and we r calling the handlerCreateUse METHOD on apiCfg
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
+
+	// Hooking up a handler to get the user
+	// To hookup the handlerGetUser, since its function signature is no longer a http.HandlerFunc
+	// We have to call the middlewareAuth function, which will return a http.HandlerFunc so the
+	// chi router can work with it
 	v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerGetUser))
 
+	// While creating the feed, not only do u have to pass the name and url as http JSON Body,
+	// U also have to pass the Authorization header, as u need that fr authing the user whos creating the feed
 	v1Router.Post("/feeds", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
+
+	// This let's any user to get all of the feeds in our database
+	// This is not an authenticated endpoint, so no need fr the Auth header, or to call the middleware func
+	// As the function is already a http.HandlerFunc
 	v1Router.Get("/feeds", apiCfg.handlerGetFeeds)
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router

@@ -17,5 +17,13 @@ RETURNING *;
 -- as specified in the sqlc.yaml file, and it goes and generates the go code in the internal/database repo,
 -- which was again specified in the sqlc.yaml file
 
+-- Now that we have created an APIKey and we have updated our schema, let's update our query to include an APIKey 
+-- when creating a new user. Instead of taking an APIKey from the user, we will just generate the APIKey FOR the user
+-- by using the bigass APIKey to generate it. This way, sql just handles the apikey, and we don't need to update 
+-- The createUser function signature
+
+
 -- name: GetUserByAPIKey :one
 SELECT * FROM users WHERE api_key = $1;
+
+-- This is just a function to return a user, using an APIKey

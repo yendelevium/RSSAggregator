@@ -51,6 +51,7 @@ func databaseFeedtoFeed(dbFeed database.Feed) Feed {
 func databaseFeedstoFeeds(dbFeeds []database.Feed) []Feed {
 	feeds := []Feed{}
 	for _, dbFeed := range dbFeeds {
+		// Converting every feed in the database.Feed slice to OUR feed type
 		feeds = append(feeds, databaseFeedtoFeed(dbFeed))
 	}
 	return feeds

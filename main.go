@@ -107,8 +107,14 @@ func main() {
 
 	// This let's any user to get all of the feeds in our database
 	// This is not an authenticated endpoint, so no need fr the Auth header, or to call the middleware func
-	// As the function is already a http.HandlerFunc
+	// As the function is already a http.HandlerFuncs
 	v1Router.Get("/feeds", apiCfg.handlerGetFeeds)
+	v1Router.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
+	v1Router.Get("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollows))
+
+	// This is a delet request. Since they don't usually have anything in the body of a delete request,
+	// We will pass the feed follow id dynamically in the path of the request
+	v1Router.Delete("/feed_follows/{feedFollowID}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router
 	// We r nesting a v1 r path will be localhost:8080/v1/healthz

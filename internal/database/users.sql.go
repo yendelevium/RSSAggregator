@@ -46,6 +46,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 const getUserByAPIKey = `-- name: GetUserByAPIKey :one
 
 
+
+
 SELECT id, created_at, update_at, name, api_key FROM users WHERE api_key = $1
 `
 
@@ -61,6 +63,10 @@ SELECT id, created_at, update_at, name, api_key FROM users WHERE api_key = $1
 // So what this does, is that sql has access to our schema and all queries,
 // as specified in the sqlc.yaml file, and it goes and generates the go code in the internal/database repo,
 // which was again specified in the sqlc.yaml file
+// Now that we have created an APIKey and we have updated our schema, let's update our query to include an APIKey
+// when creating a new user. Instead of taking an APIKey from the user, we will just generate the APIKey FOR the user
+// by using the bigass APIKey to generate it. This way, sql just handles the apikey, and we don't need to update
+// The createUser function signature
 func (q *Queries) GetUserByAPIKey(ctx context.Context, apiKey string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByAPIKey, apiKey)
 	var i User

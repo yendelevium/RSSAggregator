@@ -27,7 +27,7 @@ func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Reques
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		repsondWithError(w, 400, fmt.Sprintf("Error parsion JSON: %v", err))
+		repsondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
 		return
 	}
 	feed, err := apiCfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{

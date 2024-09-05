@@ -13,6 +13,7 @@ import (
 )
 
 const createFeed = `-- name: CreateFeed :one
+
 INSERT INTO feeds(id,created_at,update_at,name,url,user_id)
 VALUES ($1,$2,$3,$4,$5,$6)
 RETURNING id, created_at, update_at, name, url, user_id
@@ -27,6 +28,7 @@ type CreateFeedParams struct {
 	UserID    uuid.UUID
 }
 
+// We gonna create a query to create a new feed, and to get a new feed
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {
 	row := q.db.QueryRowContext(ctx, createFeed,
 		arg.ID,
@@ -52,6 +54,8 @@ const getFeeds = `-- name: GetFeeds :many
 SELECT id, created_at, update_at, name, url, user_id FROM feeds
 `
 
+// This query is to get all the feeds from our db
+// Hence we use :many as many records can be returned
 func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
 	rows, err := q.db.QueryContext(ctx, getFeeds)
 	if err != nil {

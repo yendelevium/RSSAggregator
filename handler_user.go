@@ -33,7 +33,7 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 	// This function returns an error, and if it does, it's mostly a client side error, thats y we send status code 400
 	err := decoder.Decode(&params)
 	if err != nil {
-		repsondWithError(w, 400, fmt.Sprintf("Error parsion JSON: %v", err))
+		repsondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
 		return
 	}
 	// If all goes well, now we have an access to the name, sent by the user in the json request body

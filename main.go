@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Yendelevium/RSSAggregator/internal/database"
 	"github.com/go-chi/chi"
@@ -56,6 +57,7 @@ func main() {
 		log.Fatal("Can't connect to database:", err)
 	}
 
+	db := database.New(conn)
 	// Lets create an apiConfig that we can pass into our handlers so that they have access to our database
 	apiCfg := apiConfig{
 		// This database.New() function is also made by sqlc
@@ -63,8 +65,10 @@ func main() {
 		// a pointer to the database.Queries type. See the sqlc files to get more understanding
 		// The DB is a database.Queries, but our connection is an sql.DB, so we r gonna convert it
 		// to a database.Queries using the database.New() function
-		DB: database.New(conn),
+		DB: db,
 	}
+
+	go startScraping(db, 10, time.Minute)
 
 	// This creates a new router object
 	router := chi.NewRouter()
@@ -115,6 +119,8 @@ func main() {
 	// This is a delet request. Since they don't usually have anything in the body of a delete request,
 	// We will pass the feed follow id dynamically in the path of the request
 	v1Router.Delete("/feed_follows/{feedFollowID}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
+
+	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsForUser))
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router
 	// We r nesting a v1 r path will be localhost:8080/v1/healthz

@@ -11,10 +11,19 @@ RETURNING *;
 -- name: GetFeeds :many
 SELECT * FROM feeds;
 
+
+-- This function will go get the feed, that next needs to be fetched
+-- First, we wanna find feeds that have never been fectched, and then ordering them, by most recently fetched/ most unrecently fetched, idk how dates work in sql
+-- We are also asking the user how many feeds they want
+
 -- name: GetNextFeedsToFetch :many
 SELECT * FROM feeds
 ORDER BY last_fetched_at ASC NULLS FIRST
 LIMIT $1;
+
+-- This is the one we call after we fetch the feed,to update it,and return the updated feed
+-- The updated_at and created_at fields are mostly for auditing purposes.
+-- it's pretty standard practice to set these on every sql record, to see when they were created nd updated
 
 -- name: MarkFeedAsFetched :one
 UPDATE feeds

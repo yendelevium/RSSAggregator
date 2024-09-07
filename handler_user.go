@@ -93,6 +93,8 @@ func (apiCfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, 
 	respondWithJSON(w, 200, databaseUserToUser(user))
 }
 
+// We need a way for the user to access all the posts from the feeds the user is following
+// This will also be an autheticated endpoint, as we need the feeds that the user follows in order to get the posts from those feeds
 func (apiCfg *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
 	posts, err := apiCfg.DB.GetPostsForUser(r.Context(), database.GetPostsForUserParams{
 		UserID: user.ID,

@@ -68,6 +68,9 @@ func main() {
 		DB: db,
 	}
 
+	// Now, we have to hookup the scraper so it starts scraping
+	// We have to call it before and ListenandServe as that's where our function kindof blocks forever and waits for requests
+	// Let's just get 10 posts, every minute for now
 	go startScraping(db, 10, time.Minute)
 
 	// This creates a new router object
@@ -116,10 +119,11 @@ func main() {
 	v1Router.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
 	v1Router.Get("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollows))
 
-	// This is a delet request. Since they don't usually have anything in the body of a delete request,
+	// This is a delete request. Since they don't usually have anything in the body of a delete request,
 	// We will pass the feed follow id dynamically in the path of the request
 	v1Router.Delete("/feed_follows/{feedFollowID}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
 
+	// This is to get the posts from the RSSFeeds the user is following
 	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsForUser))
 
 	// The reason we made a new router, is coz we r gonna mount that to our original router

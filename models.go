@@ -84,6 +84,15 @@ func databaseFeedFollowstoFeedFollows(dbFeedFollows []database.FeedFollow) []Fee
 	return feedFollows
 }
 
+// We don't want the sql.NullString here, as this struct will be marshalled as a json
+// Since sql.NullString is a struct, when we marshall, we will get "description", "string", and "valid"
+// as json keys. We only need the description, no need for these nested objects
+// Nested json stuff is pretty bad user experience, considering that JSON supports NULL as a value
+// So if the description is empty, we can just show NULL
+// So we will make a pointer to a string. This is coz the way that json works, is that
+// if we marshall a pointer to a string, and its null, json will marhsall that to null in json, otherwise the value of the pointer
+// U can't just have an empty string fr desc, as then that means the description exists, just nothing is in it
+// Null means the description XML tag is not present itself in the RSSFeed
 type Post struct {
 	ID          uuid.UUID `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
